@@ -1,26 +1,23 @@
-#define greenLed 7
-#define orangeLed 6
-#define redLed 5
+#include <TinkerKit.h> //On inclut l'utilisation du TinkerKit
+
+// On déclare les OUTPUT des leds
+TKLed orangeled(O0); 
+TKLed greenled(O1);
+TKLed redled(O2);
 
 void setup() {
-  // put your setup code here, to run once:
-  
-  pinMode(greenLed, OUTPUT);
-  pinMode(orangeLed, OUTPUT);
-  pinMode(redLed, OUTPUT);
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
-  digitalWrite(greenLed, HIGH); // Allume la led verte
-  delay(1000); // Attends une seconde 
-  digitalWrite(greenLed, LOW); // Eteint la led verte
-  digitalWrite(orangeLed, HIGH);
+  //utilisation des leds
+  orangeled.on();
   delay(1000);
-  digitalWrite(orangeLed, LOW);
-  digitalWrite(redLed, HIGH);
+  orangeled.off();
+  greenled.on();
   delay(1000);
-  digitalWrite(redLed, LOW);
-
+  greenled.off();
+  redled.on();
+  delay(1000);
+  redled.off();
 }
