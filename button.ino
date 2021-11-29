@@ -1,23 +1,29 @@
+/*
+  Test the different Button methods: pressed, released, held
+  and getSwitch. 
+*/
+
 #include <TinkerKit.h>
 
-TKButton button(I0);	// creating the object 'button' that belongs to the 'TKButton' class 
-                        // and giving the value to the desired input pin
+TKButton btn(I0);
 
-TKLed led(O0);		// creating the object 'led' that belongs to the 'TKLed' class 
-                        // and giving the value to the desired output pin
-
-
-void setup() {
-//nothing here
+void setup()
+{
+  Serial.begin(9600);
 }
 
 void loop()
 {
-  // check the switchState of the button
-  if (button.readSwitch() == HIGH) {	  
-    led.on();			 
-  } 
-  else {			
-    led.off();			
+  if(btn.pressed())
+    Serial.println("pressed"); 
+  if(btn.held())
+    Serial.println("held"); 
+  if(btn.released()) {
+    Serial.println("released"); 
+    Serial.print("switch: ");
+    Serial.println(btn.readSwitch());
   }
+
+  delay(50);  
 }
+
