@@ -27,11 +27,24 @@ void setup()
   // Message initial (le message afiché au démarrage dans le moniteur serie de notre programme arduino)
   Serial.println("Test acces via TAG RFID");
   Serial.println();
-  greenled.on();
+  greenled.off();
+  yellowled.off();
+  redled.off();
 }
 
 void loop() // le corp de notre programme
 {
+  switch (passage) {
+  case 1:
+    greenled.on();
+    break;
+  case 2:
+    passage = 0;
+    break;
+  case 0:
+    greenled.off();
+    break;
+  }
     if ( ! mfrc522.PICC_IsNewCardPresent()) 
   {
     return;
@@ -59,11 +72,10 @@ void loop() // le corp de notre programme
   //il suffit d'insérer ci-dessus le tag que l'on souhaite authoriser ici on dit que si le tag = 04 32 89 02 F6 5E 80 est lu alors on affiche dans le moniteur serie
   // Tag verifie - Acces Autorisé et nous eteignons notre led pendant 3sec
   {
-    yellowled.on();
-    greenled.off();
     Serial.println("TAG verifie - Acces Autorise !");
     Serial.println();
-    delay(3000);
+    passage += 1;
+    delay(1000);
   }
     
   else
@@ -76,10 +88,11 @@ void loop() // le corp de notre programme
     for (int i= 1; i<5 ; i++)
     {
       //LED clignotte ici rien à ajouter pour la gache puisque son etat ne doit pas changer la porte reste fermee
-      greenled.on();
+      redled.on();
       delay(200);
-      greenled.off();
+      redled.off();
       delay(200);
     }
   }
+  Serial.println(passage);
 }
