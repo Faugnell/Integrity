@@ -12,6 +12,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);
 TKLed greenled(O3);
 TKLed yellowled(O5);
 TKLed redled(O4);
+TKButton button(I1);
 //on pourrait très bien ajouter quelques chose comme :
 int serrure = 3; //(pour gérer une gache éléctrique)
 int passage = 0;
@@ -33,13 +34,17 @@ void setup()
 }
 
 void loop() // le corp de notre programme
-{
+{ 
+  if(button.released() && passage == 1) {
+    yellowled.on();
+  }
   switch (passage) {
   case 1:
     greenled.on();
     break;
   case 2:
     passage = 0;
+    yellowled.off();
     break;
   case 0:
     greenled.off();
@@ -87,12 +92,11 @@ void loop() // le corp de notre programme
     // on repete 5fois
     for (int i= 1; i<5 ; i++)
     {
-      //LED clignotte ici rien à ajouter pour la gache puisque son etat ne doit pas changer la porte reste fermee
+      //LED clignotte ici
       redled.on();
       delay(200);
       redled.off();
       delay(200);
     }
   }
-  Serial.println(passage);
 }
