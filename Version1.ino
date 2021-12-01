@@ -1,3 +1,9 @@
+/*
+Auteur : Victor Petit
+Licence :
+Summary : (pourquoi ce fichier et pas autre chose)
+*/
+
 #include <SPI.h> // inclut les bibliothèques RFID
 #include <MFRC522.h>
 #include <TinkerKit.h> // inclut la bibliothèque TinkerKit
@@ -20,7 +26,7 @@ char st[20];
 
 void setup() 
 { 
-  //initialisation serie(pour le relevé d'information via le moniteur série) et initialisation des deux bibliotheque SPI et MFRC522
+  // initialisation serie(pour le relevé d'information via le moniteur série) et initialisation des deux bibliotheque SPI et MFRC522
   Serial.begin(9600);
   SPI.begin();
   mfrc522.PCD_Init(); 
@@ -36,31 +42,37 @@ void setup()
 void loop() // le corp de notre programme
 { 
   // Si le bouton est relaché déclenche la led de présence
-  if(button.released() && passage == 1) {
+  if(button.released() && passage == 1)
+  {
     yellowled.on();
   }
+  
   // Regarde le numéro de passage pour éteindre ou allumer la led d'état
-  switch (passage) {
-  case 1:
-    greenled.on();
-    break;
-  case 2:
-    passage = 0;
-    yellowled.off();
-    break;
-  case 0:
-    greenled.off();
-    break;
-  }
-  // Initialisations de lecture du badge
-    if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  switch (passage)
   {
+    case 0:
+      greenled.off();
+      break;
+    case 1:
+      greenled.on();
+      break;
+    case 2:
+      passage = 0;
+      yellowled.off();
+      break;
+  }
+  
+  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  {
+    // Echec de la lecture RFID donc fin du programme
     return;
   }
+  
   if ( ! mfrc522.PICC_ReadCardSerial()) 
   {
     return;
   }
+  
   Serial.print("UID de tag :");
   String tag= "";
   byte caractere;
@@ -71,24 +83,22 @@ void loop() // le corp de notre programme
      tag.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
      tag.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
+  
   Serial.println();
   Serial.print("Message : ");
   tag.toUpperCase();
   
- // ici on va vérifier l'autorisation
-  if (tag.substring(1) == "04 32 89 02 F6 5E 80") // le numero de tag est visible lorsqu on presente la carte ou le badge via le moniteur serie
-  //il suffit d'insérer ci-dessus le tag que l'on souhaite authoriser ici on dit que si le tag = 04 32 89 02 F6 5E 80 est lu alors on affiche dans le moniteur serie
+  // ici on va vérifier l'autorisation
+  if (tag.substring(1) == "04 32 89 02 F6 5E 80")
   {
     Serial.println("TAG verifie - Acces Autorise !");
     Serial.println();
     passage += 1;
     delay(1000);
   }
-    
   else
   //sinon si le Tag n'est pas valide
   {
-    //on affiche Acces refuse !!!
     Serial.println("TAG inconnu - Acces refuse !!!");
     Serial.println();
     // on repete 5fois
