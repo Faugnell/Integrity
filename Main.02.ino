@@ -1,6 +1,6 @@
-#include <SPI.h> // RFID
-#include <MFRC522.h> // RFID
-#include <TinkerKit.h> // TinkerKit
+#include <SPI.h>
+#include <MFRC522.h>
+#include <TinkerKit.h>
 
 #define LOOP_DELAY 100  // période de scrutation et de clignottement
 #define RFID_SIZE 20
@@ -13,6 +13,7 @@ byte nuidPICC[255];
 enum TLed { ON, OFF, BLINK };
 enum  TState { INIT, BADGE_ERROR_INIT, SCAN_IN_PROGRESS, BADGE_ERROR_SCAN, SYSTEM_COMPROMISED };
 
+// Declaration des variables 
 TState internalState = INIT;
 TLed outputGreenLed = ON;
 TLed outputOrangeLed = OFF;
@@ -22,7 +23,9 @@ TKLed OrangeLed(O5);
 TKLed RedLed(O4);
 TKButton btn(I1);
 String inputRfid;
+String MainID = "432892f65e80";
 
+// Fonction d'utilisation des Leds
 void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed){
   switch(outputGreenLed) {
     case ON:
@@ -74,7 +77,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed){
   }
 }
 
-int srfid(String *s) 
+// Fonction de la lecture RFID
+int ReadRfid(String *s) 
 {
   if ( !rfid.PICC_IsNewCardPresent())
     return 1; 
@@ -90,6 +94,7 @@ int srfid(String *s)
   return 0;
 }
 
+// Fonction d'initialisation du moniteur et du lecteur RFID
 void setup()
 {
   Serial.begin(9600);
@@ -97,11 +102,12 @@ void setup()
   rfid.PCD_Init(); 
 }
 
+// Fonction principale
 void loop()
 {
   // lecture RFID
   String p = "";
-  srfid(&p);
+  ReadRfid(&p);
   inputRfid = p;
   Serial.print(inputRfid);
   Serial.println(internalState);
@@ -109,10 +115,12 @@ void loop()
   // Traitement
   switch (internalState) {
     case INIT:
-      if (inputRfid != "432892f65e80" && inputRfid != "") {
+      if (inputRfid != MainID && inputRfid != "")
+      {
         internalState = BADGE_ERROR_INIT;
       }
-      if (inputRfid == "432892f65e80") {
+      if (inputRfid == MainID)
+      {
         internalState = SCAN_IN_PROGRESS;
       }
       outputGreenLed = ON;  
@@ -120,20 +128,22 @@ void loop()
       outputRedLed = OFF;
       break;
     case BADGE_ERROR_INIT:
-      if (inputRfid == "432892f65e80")
+      if (inputRfid == MainID)
         {
           internalState = INIT;
         }
       outputGreenLed = ON;  
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
+      delay(LOOP_DELAY * 3);
+      interanlState = INIT;
       break;
     case SCAN_IN_PROGRESS:
-      if (inputRfid != "432892f65e80" && inputRfid != "")
+      if (inputRfid != MainID && inputRfid != "")
       {
         internalState = BADGE_ERROR_SCAN;
       }
-      if (inputRfid == "432892f65e80")
+      if (inputRfid == MainID)
       {
         internalState = INIT;
       }
@@ -147,16 +157,18 @@ void loop()
       outputRedLed = OFF;
       break;
     case BADGE_ERROR_SCAN:
-      if (inputRfid == "432892f65e80")
+      if (inputRfid == MainID)
       {
         internalState = INIT;
       }
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
+      delay(LOOP_DELAY * 3);
+      interanlState = INIT;
       break;
     case SYSTEM_COMPROMISED:
-      if (inputRfid == "432892f65e80")
+      if (inputRfid == MainID)
       {
         internalState = INIT;
       }
@@ -165,8 +177,7 @@ void loop()
       outputRedLed = ON;
       break;
   }
-  
+  // Ecriture des Leds
   WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
-  
   delay(LOOP_DELAY);
 }
