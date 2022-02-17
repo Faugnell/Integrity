@@ -1,6 +1,9 @@
-/*******************************************************
-Role ........ : Système de vérification d'intégrité
-********************************************************/
+/*!
+* @file arduino.c
+* @author Victor Petit
+* @license GPL
+* @brief machine à état pour le control de compromission du scan de disque
+*/
 
 #include <SPI.h>
 #include <MFRC522.h>
@@ -23,7 +26,6 @@ byte nuidPICC[255];
 enum TLed { ON, OFF, BLINK };
 enum  TState { INIT, BADGE_ERROR_INIT, SCAN_IN_PROGRESS, BADGE_ERROR_SCAN, SYSTEM_COMPROMISED };
 
-// Declaration des variables 
 TState internalState = INIT;
 TLed outputGreenLed = ON;
 TLed outputOrangeLed = OFF;
@@ -36,10 +38,13 @@ String inputRfid;
 String MainID = "432892f65e80";
 int count = 0;
 
-// Fonction secondaire qui s'occupe de la sortie des leds (allumée/éteinte/clignotante)
+/*!
+* @brief écriture des leds
+* @param TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed : output des leds
+* @return void
+*/
 void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 {
-  // Cas led verte
   switch(outputGreenLed)
   {
     case ON:
@@ -59,7 +64,6 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       break;
   }
   
-  // Cas led orange
   switch(outputOrangeLed)
   {
     case ON:
@@ -78,7 +82,7 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       }
       break;
   }
-  // Cas led rouge
+  
   switch(outputRedLed)
   {
     case ON:
@@ -99,13 +103,19 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
   }
 }
 
-// Fonction secondaire qui s'occupe de savoir si un tag est lu ou non et l'enregistre
+/*!
+* @brief lecture du badge et enregistrement du tag
+* @param s, pointeur sur une chaine de caractères
+* @return BADGE, seulement si un badge est lu et enregistré
+*/
 int ReadRfid(String *s) 
 {
   if ( !rfid.PICC_IsNewCardPresent())
     return NO_BADGE; 
+  
   if ( !rfid.PICC_ReadCardSerial())
     return ERROR_BADGE;
+  
   for (int i = 0; i < rfid.uid.size; i++) 
   {
     nuidPICC[i] = rfid.uid.uidByte[i];
@@ -114,7 +124,11 @@ int ReadRfid(String *s)
   return BADGE;
 }
 
-// Fonction d'initialisation du moniteur et du lecteur RFID
+/*!
+* @brief setup le moniteur et le lecteur RFID
+* @param void
+* @return void
+*/
 void setup()
 {
   Serial.begin(9600);
@@ -122,7 +136,11 @@ void setup()
   rfid.PCD_Init(); 
 }
 
-// Fonction principale qui récupère en entrée le tag du badge RFID puis sort la bonne couleur de led suivant le cas
+/*!
+* @brief boucle de traitement qui prend en compte les entrés et sorties
+* @param void
+* @return void
+*/
 void loop()
 {
   // Lecture des entrées
