@@ -11,6 +11,9 @@ Role ........ : Système de vérification d'intégrité
 #define RFID_SIZE 20
 #define SS_PIN 10
 #define RST_PIN 9
+#define NO_BADGE 1
+#define ERROR_BADGE 2
+#define BADGE 0
 
 MFRC522 rfid(SS_PIN, RST_PIN); 
 byte nuidPICC[255];
@@ -31,7 +34,7 @@ String inputRfid;
 String MainID = "432892f65e80";
 int count = 0;
 
-// 
+// Fonction secondaire qui s'occupe de la sortie des leds (allumée/éteinte/clignotante)
 void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 {
   // Cas led verte
@@ -44,7 +47,7 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       GreenLed.off();
       break; 
     case BLINK:
-      if (GreenLed.state() == HIGH
+      if (GreenLed.state() == HIGH)
       {
         GreenLed.off();
       }
@@ -64,7 +67,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       OrangeLed.off();
       break; 
     case BLINK:
-      if (OrangeLed.state() == HIGH){
+      if (OrangeLed.state() == HIGH)
+      {
         OrangeLed.off();
       }
       else{
@@ -73,7 +77,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       break;
   }
   // Cas led rouge
-  switch(outputRedLed) {
+  switch(outputRedLed)
+  {
     case ON:
       RedLed.on();
       break;   
@@ -81,7 +86,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       RedLed.off();
       break; 
     case BLINK:
-      if (RedLed.state() == HIGH){
+      if (RedLed.state() == HIGH)
+      {
         RedLed.off();
       }
       else{
@@ -91,19 +97,19 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
   }
 }
 
-// Fonction de la lecture RFID
+// Fonction secondaire qui s'occupe de savoir si un tag est lu ou non et l'enregistre
 int ReadRfid(String *s) 
 {
   if ( !rfid.PICC_IsNewCardPresent())
-    return 1; 
+    return NO_BADGE; 
   if ( !rfid.PICC_ReadCardSerial())
-    return 2;
+    return ERROR_BADGE;
   for (int i = 0; i < rfid.uid.size; i++) 
   {
     nuidPICC[i] = rfid.uid.uidByte[i];
     *s = *s + String(rfid.uid.uidByte[i],HEX);
   }
-  return 0;
+  return BADGE;
 }
 
 // Fonction d'initialisation du moniteur et du lecteur RFID
@@ -114,7 +120,7 @@ void setup()
   rfid.PCD_Init(); 
 }
 
-// Fonction principale
+// Fonction principale qui récupère en entrée le tag du badge RFID puis sort la bonne couleur de led suivant le cas
 void loop()
 {
   // Lecture des entrées
@@ -141,7 +147,7 @@ void loop()
       outputOrangeLed = OFF;
       outputRedLed = OFF;
       break;
-    // Cas si un badge n'est pas bon lors de la phase d'initialisation
+    // Cas où un badge n'est pas valide lors de la phase d'initialisation
     case BADGE_ERROR_INIT:
       outputGreenLed = ON;  
       outputOrangeLed = OFF;
@@ -153,7 +159,7 @@ void loop()
         count = 0;
       }
       break;
-    // Cas ou le scan est en cours
+    // Cas où le scan est en cours
     case SCAN_IN_PROGRESS:
       if (inputRfid != MainID && inputRfid != "")
       {
@@ -172,7 +178,7 @@ void loop()
       outputOrangeLed = BLINK;
       outputRedLed = OFF;
       break;
-    // Cas ou un badge non valide est passé durant le scan
+    // Cas où un badge non valide est passé durant le scan
     case BADGE_ERROR_SCAN:
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
@@ -184,7 +190,7 @@ void loop()
         count = 0;
       }
       break;
-    // Cas ou le systme est compromis
+    // Cas ou le système est compromis
     case SYSTEM_COMPROMISED:
       if (inputRfid == MainID)
       {
@@ -197,6 +203,6 @@ void loop()
   }
   // Ecriture des sorties
   WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
-  // 
+  // Le délais qui permet le clignotement des leds et un retour au début de la loop pour ne pas relire un badge immédiatement
   delay(LOOP_DELAY);
 }
