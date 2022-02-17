@@ -29,6 +29,7 @@ TKLed RedLed(O4);
 TKButton btn(I1);
 String inputRfid;
 String MainID = "432892f65e80";
+int count = 0;
 
 // 
 void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
@@ -142,15 +143,15 @@ void loop()
       break;
     // Cas si un badge n'est pas bon lors de la phase d'initialisation
     case BADGE_ERROR_INIT:
-      if (inputRfid == MainID)
-        {
-          internalState = INIT;
-        }
       outputGreenLed = ON;  
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
-      delay(LOOP_DELAY * 3);
-      internalState = INIT;
+      count++;
+      if(count == 30)
+      {
+        internalState = INIT;
+        count = 0;
+      }
       break;
     // Cas ou le scan est en cours
     case SCAN_IN_PROGRESS:
@@ -173,15 +174,15 @@ void loop()
       break;
     // Cas ou un badge non valide est passé durant le scan
     case BADGE_ERROR_SCAN:
-      if (inputRfid == MainID)
-      {
-        internalState = INIT;
-      }
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
-      delay(LOOP_DELAY * 3);
-      internalState = INIT;
+      count++;
+      if(count == 30)
+      {
+        internalState = INIT;
+        count = 0;
+      }
       break;
     // Cas ou le systme est compromis
     case SYSTEM_COMPROMISED:
