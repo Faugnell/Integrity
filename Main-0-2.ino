@@ -17,8 +17,7 @@
 #define NO_BADGE 1
 #define ERROR_BADGE 2
 #define BADGE 0
-#define WAIT_ERROR_INIT 30
-#define WAIT_ERROR_SCAN 30
+#define TIMEOUT 3000
 
 MFRC522 rfid(SS_PIN, RST_PIN); 
 byte nuidPICC[255];
@@ -36,7 +35,8 @@ TKLed RedLed(O4);
 TKButton btn(I1);
 String inputRfid;
 String MainID = "432892f65e80";
-int count = 0;
+unsigned long currentTime = 0;
+unsigned long previousTime = 0;
 
 /*!
 * @brief écriture des leds
@@ -143,6 +143,7 @@ void setup()
 */
 void loop()
 {
+  currentTime = millis();
   // Lecture des entrées
   String p = "";
   ReadRfid(&p);
@@ -172,11 +173,10 @@ void loop()
       outputGreenLed = ON;  
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
-      count++;
-      if(count == WAIT_ERROR_INIT)
+      if((currentTime-previousTime) > TIMEOUT)
       {
+        previousTime = currentTime;
         internalState = INIT;
-        count = 0;
       }
       break;
     // Cas où le scan est en cours
@@ -203,11 +203,10 @@ void loop()
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
-      count++;
-      if(count == WAIT_ERROR_SCAN)
+      if((currentTime-previousTime) > TIMEOUT)
       {
+        previousTime = currentTime;
         internalState = INIT;
-        count = 0;
       }
       break;
     // Cas ou le système est compromis
