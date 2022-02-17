@@ -1,3 +1,13 @@
+/*******************************************************
+Nom ......... : Main-0-2.ino
+Role ........ : Systeme de Verification d'intégrité
+Auteur ...... : Victor Petit
+Version ..... : V0.2 du 17/02/2022
+Licence ..... : 
+
+Utilisation . : Système Arduino
+********************************************************/
+
 #include <SPI.h>
 #include <MFRC522.h>
 #include <TinkerKit.h>
