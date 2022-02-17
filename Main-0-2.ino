@@ -1,11 +1,5 @@
 /*******************************************************
-Nom ......... : Main-0-2.ino
-Role ........ : Systeme de Verification d'intégrité
-Auteur ...... : Victor Petit
-Version ..... : V0.2 du 17/02/2022
-Licence ..... : 
-
-Utilisation . : Système Arduino
+Role ........ : Système de vérification d'intégrité
 ********************************************************/
 
 #include <SPI.h>
@@ -36,11 +30,12 @@ TKButton btn(I1);
 String inputRfid;
 String MainID = "432892f65e80";
 
-// Fonction d'utilisation des Leds
+// 
 void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 {
   // Cas led verte
-  switch(outputGreenLed) {
+  switch(outputGreenLed)
+  {
     case ON:
       GreenLed.on();
       break;   
@@ -48,7 +43,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       GreenLed.off();
       break; 
     case BLINK:
-      if (GreenLed.state() == HIGH){
+      if (GreenLed.state() == HIGH
+      {
         GreenLed.off();
       }
       else{
@@ -56,8 +52,10 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       }
       break;
   }
+  
   // Cas led orange
-  switch(outputOrangeLed) {
+  switch(outputOrangeLed)
+  {
     case ON:
       OrangeLed.on();
       break;   
@@ -104,8 +102,6 @@ int ReadRfid(String *s)
     nuidPICC[i] = rfid.uid.uidByte[i];
     *s = *s + String(rfid.uid.uidByte[i],HEX);
   }
-  /*rfid.PICC_HaltA();
-  rfid.PCD_StopCrypto1();*/
   return 0;
 }
 
@@ -120,7 +116,7 @@ void setup()
 // Fonction principale
 void loop()
 {
-  // lecture RFID
+  // Lecture des entrées
   String p = "";
   ReadRfid(&p);
   inputRfid = p;
@@ -198,7 +194,8 @@ void loop()
       outputRedLed = ON;
       break;
   }
-  // Ecriture des Leds
+  // Ecriture des sorties
   WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
+  // 
   delay(LOOP_DELAY);
 }
