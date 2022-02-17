@@ -14,6 +14,8 @@ Role ........ : Système de vérification d'intégrité
 #define NO_BADGE 1
 #define ERROR_BADGE 2
 #define BADGE 0
+#define WAIT_ERROR_INIT 30
+#define WAIT_ERROR_SCAN 30
 
 MFRC522 rfid(SS_PIN, RST_PIN); 
 byte nuidPICC[255];
@@ -153,7 +155,7 @@ void loop()
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
       count++;
-      if(count == 30)
+      if(count == WAIT_ERROR_INIT)
       {
         internalState = INIT;
         count = 0;
@@ -184,7 +186,7 @@ void loop()
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
       count++;
-      if(count == 30)
+      if(count == WAIT_ERROR_SCAN)
       {
         internalState = INIT;
         count = 0;
@@ -194,7 +196,7 @@ void loop()
     case SYSTEM_COMPROMISED:
       if (inputRfid == MainID)
       {
-        internalState = INIT;
+        internalState = SCAN_IN_PROGRESS;
       }
       outputGreenLed = OFF;  
       outputOrangeLed = OFF;
