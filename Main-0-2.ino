@@ -12,7 +12,8 @@ Utilisation . : Système Arduino
 #include <MFRC522.h>
 #include <TinkerKit.h>
 
-#define LOOP_DELAY 100  // période de scrutation et de clignottement
+// Declaration des constantes
+#define LOOP_DELAY 100
 #define RFID_SIZE 20
 #define SS_PIN 10
 #define RST_PIN 9
@@ -36,7 +37,9 @@ String inputRfid;
 String MainID = "432892f65e80";
 
 // Fonction d'utilisation des Leds
-void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed){
+void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
+{
+  // Cas led verte
   switch(outputGreenLed) {
     case ON:
       GreenLed.on();
@@ -53,6 +56,7 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed){
       }
       break;
   }
+  // Cas led orange
   switch(outputOrangeLed) {
     case ON:
       OrangeLed.on();
@@ -69,6 +73,7 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed){
       }
       break;
   }
+  // Cas led rouge
   switch(outputRedLed) {
     case ON:
       RedLed.on();
@@ -99,8 +104,8 @@ int ReadRfid(String *s)
     nuidPICC[i] = rfid.uid.uidByte[i];
     *s = *s + String(rfid.uid.uidByte[i],HEX);
   }
-  rfid.PICC_HaltA();
-  rfid.PCD_StopCrypto1();
+  /*rfid.PICC_HaltA();
+  rfid.PCD_StopCrypto1();*/
   return 0;
 }
 
@@ -123,7 +128,9 @@ void loop()
   Serial.println(internalState);
   
   // Traitement
-  switch (internalState) {
+  switch (internalState)
+  {
+    // Cas d'initialisation  
     case INIT:
       if (inputRfid != MainID && inputRfid != "")
       {
@@ -137,6 +144,7 @@ void loop()
       outputOrangeLed = OFF;
       outputRedLed = OFF;
       break;
+    // Cas si un badge n'est pas bon lors de la phase d'initialisation
     case BADGE_ERROR_INIT:
       if (inputRfid == MainID)
         {
@@ -146,8 +154,9 @@ void loop()
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
       delay(LOOP_DELAY * 3);
-      interanlState = INIT;
+      internalState = INIT;
       break;
+    // Cas ou le scan est en cours
     case SCAN_IN_PROGRESS:
       if (inputRfid != MainID && inputRfid != "")
       {
@@ -166,6 +175,7 @@ void loop()
       outputOrangeLed = BLINK;
       outputRedLed = OFF;
       break;
+    // Cas ou un badge non valide est passé durant le scan
     case BADGE_ERROR_SCAN:
       if (inputRfid == MainID)
       {
@@ -175,8 +185,9 @@ void loop()
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
       delay(LOOP_DELAY * 3);
-      interanlState = INIT;
+      internalState = INIT;
       break;
+    // Cas ou le systme est compromis
     case SYSTEM_COMPROMISED:
       if (inputRfid == MainID)
       {
