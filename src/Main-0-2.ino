@@ -10,7 +10,7 @@
 #include <MFRC522.h>
 #include <TinkerKit.h>
 
-// Declaration des constantes
+// Déclaration des constantes
 #define LOOP_DELAY 100
 #define RFID_SIZE 20
 #define SS_PIN 10
@@ -26,6 +26,7 @@ byte nuidPICC[255];
 enum TLed { ON, OFF, BLINK };
 enum  TState { INIT, BADGE_ERROR_INIT, SCAN_IN_PROGRESS, BADGE_ERROR_SCAN, SYSTEM_COMPROMISED };
 
+// Déclaration des variables
 TState internalState = INIT;
 TLed outputGreenLed = ON;
 TLed outputOrangeLed = OFF;
@@ -41,7 +42,9 @@ unsigned long refTime;
 
 /*!
 * @brief écriture des leds
-* @param TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed : output des leds
+* @param TLed outputGreenLed : état de sortie de la led verte
+* @param TLed outputOrangeLed : état de sortie de la led orange
+* @param TLed outputRedLed : état de sortie de la led rouge
 * @return void
 */
 void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
@@ -59,7 +62,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       {
         GreenLed.off();
       }
-      else{
+      else
+      {
         GreenLed.on();
       }
       break;
@@ -78,7 +82,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       {
         OrangeLed.off();
       }
-      else{
+      else
+      {
         OrangeLed.on();
       }
       break;
@@ -97,7 +102,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       {
         RedLed.off();
       }
-      else{
+      else
+      {
         RedLed.on();
       }
       break;
@@ -105,9 +111,9 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 }
 
 /*!
-* @brief lecture du badge et enregistrement du tag
+* @brief détection de la présence et lecture du badge
 * @param s, pointeur sur une chaine de caractères
-* @return BADGE, seulement si un badge est lu et enregistré
+* @return BADGE_OK(0), seulement si un badge est lu et enregistré
 */
 int ReadRfid(String *s)
 {
@@ -120,7 +126,7 @@ int ReadRfid(String *s)
   for (int i = 0; i < rfid.uid.size; i++)
   {
     nuidPICC[i] = rfid.uid.uidByte[i];
-    *s = *s + String(rfid.uid.uidByte[i],HEX);
+    *s = *s + String(rfid.uid.uidByte[i], HEX);
   }
   return BADGE_OK;
 }
@@ -143,7 +149,7 @@ bool EndOfDelay(unsigned long ref, unsigned long timeDelay)
 }
 
 /*!
-* @brief setup le moniteur et le lecteur RFID
+* @brief initialisation du moniteur et du lecteur RFID
 * @param void
 * @return void
 */
@@ -259,6 +265,6 @@ void loop()
   }
   // Ecriture des sorties
   WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
-  // Le délais qui permet le clignotement des leds et un retour au début de la loop pour ne pas relire un badge immédiatement
+  // Période de la boucle principale et de la clignottement
   delay(LOOP_DELAY);
 }
