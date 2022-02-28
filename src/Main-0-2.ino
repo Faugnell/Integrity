@@ -133,7 +133,8 @@ int ReadRfid(String *s)
 
 /*
   @brief vérifie que le delay a été dépassé depuis le temps de référence
-  @param
+  @param ref : le temps de référence
+  @param timeDelay : le temps de delais voulu
   @return true si le temps est dépassé
 */
 bool EndOfDelay(unsigned long ref, unsigned long timeDelay)
