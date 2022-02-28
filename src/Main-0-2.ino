@@ -255,10 +255,17 @@ void loop()
     // Cas ou le système est compromis
     case SYSTEM_COMPROMISED:
       Serial.println("SYSTEM_COMPROMISED");
-      if (inputRfid == MainID)
-      {
-        internalState = INIT;
-      }
+      if(statusReadRfid == BADGE_OK)
+      {
+        if(rfidBadge == MainID)
+        {
+          internalState = INIT;
+        }
+        else
+        {
+          // La compromission reste inchangé
+        }
+      }
       outputGreenLed = OFF;  
       outputOrangeLed = OFF;
       outputRedLed = ON;
