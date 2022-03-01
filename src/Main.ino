@@ -1,5 +1,4 @@
 /*!
-
 * @file arduino.c
 * @author Victor Petit
 * @license GPL
@@ -113,7 +112,9 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 /*!
 * @brief détection de la présence et lecture du badge
 * @param s, pointeur sur une chaine de caractères
-* @return BADGE_OK(0), seulement si un badge est lu et enregistré
+* @return BADGE_OK, seulement si un badge est lu et enregistré
+* @return BADGE_ABSENT si aucun badge n'est détecté
+* @return BADGE_ERROR Si le contenu du badge n'a pas pu être lu
 */
 int ReadRfid(String *s)
 {
@@ -178,16 +179,17 @@ void loop()
   {
     // Cas d'initialisation  
     case INIT:
-      Serial.println("INIT");
       if(statusReadRfid == BADGE_OK)
       {
         if(rfidBadge == MainID)
         {
           internalState = SCAN_IN_PROGRESS;
+          Serial.println("SCAN_IN_PROGRESS");
         }
         else
         {
           internalState = BADGE_ERROR_INIT;
+          Serial.println("BADGE_ERROR_INIT");
           refTime = millis();
         }
       }
@@ -201,13 +203,13 @@ void loop()
       break;
     // Cas où un badge n'est pas valide lors de la phase d'initialisation
     case BADGE_ERROR_INIT:
-      Serial.println("BADGE_ERROR_INIT");
       outputGreenLed = ON;  
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
       if(EndOfDelay(refTime, TIMEOUT) == true)
       {
         internalState = INIT;
+        Serial.println("INIT");
       }
       else
       {
@@ -216,22 +218,24 @@ void loop()
       break;
     // Cas où le scan est en cours
     case SCAN_IN_PROGRESS:
-      Serial.println("SCAN_IN_PROGRESS");
       if(statusReadRfid == BADGE_OK)
       {
         if(rfidBadge == MainID)
         {
           internalState = INIT;
+          Serial.println("INIT");
         }
         else
         {
           internalState = BADGE_ERROR_SCAN;
+          Serial.println("BADGE_ERROR_SCAN");
           refTime = millis();
         }
       }
       if(btn.released())
       {
         internalState = SYSTEM_COMPROMISED;
+        Serial.println("SYSTEM_COMPROMISED");
       }
       outputGreenLed = ON;
       outputOrangeLed = BLINK;
@@ -239,13 +243,13 @@ void loop()
       break;
     // Cas où un badge non valide est passé durant le scan
     case BADGE_ERROR_SCAN:
-      Serial.println("BADGE_ERROR_SCAN");
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
       if(EndOfDelay(refTime, TIMEOUT) == true)
       {
         internalState = SCAN_IN_PROGRESS;
+        Serial.println("SCAN_IN_PROGRESS");
       }
       else
       {
@@ -254,12 +258,12 @@ void loop()
       break;
     // Cas ou le système est compromis
     case SYSTEM_COMPROMISED:
-      Serial.println("SYSTEM_COMPROMISED");
       if(statusReadRfid == BADGE_OK)
       {
         if(rfidBadge == MainID)
         {
           internalState = INIT;
+          Serial.println("INIT");
         }
         else
         {
