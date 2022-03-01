@@ -17,7 +17,8 @@
 #define BADGE_ABSENT 1
 #define BADGE_ERROR 2
 #define BADGE_OK 0
-#define TIMEOUT 3000
+#define TIMEOUT_INIT 3000
+#define TIMEOUT_SCAN 3000
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 byte nuidPICC[255];
@@ -206,7 +207,7 @@ void loop()
       outputGreenLed = ON;  
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
-      if(EndOfDelay(refTime, TIMEOUT) == true)
+      if(EndOfDelay(refTime, TIMEOUT_INIT) == true)
       {
         internalState = INIT;
         Serial.println("INIT");
@@ -246,7 +247,7 @@ void loop()
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
-      if(EndOfDelay(refTime, TIMEOUT) == true)
+      if(EndOfDelay(refTime, TIMEOUT_SCAN) == true)
       {
         internalState = SCAN_IN_PROGRESS;
         Serial.println("SCAN_IN_PROGRESS");
