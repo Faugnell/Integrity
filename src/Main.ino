@@ -2,7 +2,7 @@
 * @file arduino.c
 * @author Victor Petit
 * @license GPL
-* @brief machine à état pour le control de compromission du scan de disque
+* @brief machine à état pour contrôler l'intégrité d'un sas antivirus
 */
 
 #include <SPI.h>
@@ -19,6 +19,7 @@
 #define BADGE_OK 0
 #define TIMEOUT_INIT 3000
 #define TIMEOUT_SCAN 3000
+#define RFID_ADMIN = "432892f65e80"
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 byte nuidPICC[255];
@@ -36,9 +37,9 @@ TKLed OrangeLed(O5);
 TKLed RedLed(O4);
 TKButton btn(I1);
 String inputRfid;
-String MainID = "432892f65e80";
-unsigned long currentTime;
-unsigned long refTime;
+unsigned long InternalCurrentTime;
+unsigned long InternalRefTime;
+int inputStatusReadRfid;
 
 /*!
 * @brief écriture des leds
@@ -172,7 +173,7 @@ void loop()
 {
   // Lecture des entrées
   String rfidBadge = "";
-  int statusReadRfid = ReadRfid(&rfidBadge);
+  inputStatusReadRfid = ReadRfid(&rfidBadge);
   inputRfid = rfidBadge;
   Serial.print(inputRfid);
   // Traitement
@@ -191,7 +192,7 @@ void loop()
         {
           internalState = BADGE_ERROR_INIT;
           Serial.println("BADGE_ERROR_INIT");
-          refTime = millis();
+          InternalRefTime = millis();
         }
       }
       else
@@ -207,7 +208,7 @@ void loop()
       outputGreenLed = ON;  
       outputOrangeLed = OFF;
       outputRedLed = BLINK;
-      if(EndOfDelay(refTime, TIMEOUT_INIT) == true)
+      if(EndOfDelay(InternalRefTime, TIMEOUT_INIT) == true)
       {
         internalState = INIT;
         Serial.println("INIT");
@@ -230,7 +231,7 @@ void loop()
         {
           internalState = BADGE_ERROR_SCAN;
           Serial.println("BADGE_ERROR_SCAN");
-          refTime = millis();
+          InternalRefTime = millis();
         }
       }
       if(btn.released())
@@ -247,7 +248,7 @@ void loop()
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
-      if(EndOfDelay(refTime, TIMEOUT_SCAN) == true)
+      if(EndOfDelay(InternalRefTime, TIMEOUT_SCAN) == true)
       {
         internalState = SCAN_IN_PROGRESS;
         Serial.println("SCAN_IN_PROGRESS");
