@@ -19,13 +19,13 @@
 #define BADGE_OK 0
 #define TIMEOUT_INIT 3000
 #define TIMEOUT_SCAN 3000
-#define RFID_ADMIN = "432892f65e80"
+String RFID_ADMIN = "432892f65e80";
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 byte nuidPICC[255];
 
 enum TLed { ON, OFF, BLINK };
-enum  TState { INIT, BADGE_ERROR_INIT, SCAN_IN_PROGRESS, BADGE_ERROR_SCAN, SYSTEM_COMPROMISED };
+enum  TState { INIT, BADGE_ERROR_INIT, SCAN_IN_PROGRESS, BADGE_ERROR_SCAN, SYSTEM_COMPROMISED };
 
 // Déclaration des variables
 TState internalState = INIT;
@@ -36,10 +36,9 @@ TKLed GreenLed(O3);
 TKLed OrangeLed(O5);
 TKLed RedLed(O4);
 TKButton btn(I1);
-String inputRfid;
-unsigned long InternalCurrentTime;
 unsigned long InternalRefTime;
 int inputStatusReadRfid;
+String rfidBadge;
 
 /*!
 * @brief écriture des leds
@@ -50,65 +49,65 @@ int inputStatusReadRfid;
 */
 void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 {
-  switch(outputGreenLed)
-  {
-    case ON:
-      GreenLed.on();
-      break;  
-    case OFF:
-      GreenLed.off();
-      break;
-    case BLINK:
-      if (GreenLed.state() == HIGH)
-      {
-        GreenLed.off();
-      }
-      else
+  switch(outputGreenLed)
+  {
+    case ON:
+      GreenLed.on();
+      break;  
+    case OFF:
+      GreenLed.off();
+      break;
+    case BLINK:
+      if (GreenLed.state() == HIGH)
       {
-        GreenLed.on();
-      }
-      break;
-  }
- 
-  switch(outputOrangeLed)
-  {
-    case ON:
-      OrangeLed.on();
-      break;  
-    case OFF:
-      OrangeLed.off();
-      break;
-    case BLINK:
-      if (OrangeLed.state() == HIGH)
-      {
-        OrangeLed.off();
-      }
-      else
+        GreenLed.off();
+      }
+      else
       {
-        OrangeLed.on();
-      }
-      break;
-  }
- 
-  switch(outputRedLed)
-  {
-    case ON:
-      RedLed.on();
-      break;  
-    case OFF:
-      RedLed.off();
-      break;
-    case BLINK:
-      if (RedLed.state() == HIGH)
-      {
-        RedLed.off();
-      }
-      else
+        GreenLed.on();
+      }
+      break;
+  }
+ 
+  switch(outputOrangeLed)
+  {
+    case ON:
+      OrangeLed.on();
+      break;  
+    case OFF:
+      OrangeLed.off();
+      break;
+    case BLINK:
+      if (OrangeLed.state() == HIGH)
       {
-        RedLed.on();
-      }
-      break;
-  }
+        OrangeLed.off();
+      }
+      else
+      {
+        OrangeLed.on();
+      }
+      break;
+  }
+ 
+  switch(outputRedLed)
+  {
+    case ON:
+      RedLed.on();
+      break;  
+    case OFF:
+      RedLed.off();
+      break;
+    case BLINK:
+      if (RedLed.state() == HIGH)
+      {
+        RedLed.off();
+      }
+      else
+      {
+        RedLed.on();
+      }
+      break;
+  }
 }
 
 /*!
@@ -120,36 +119,36 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 */
 int ReadRfid(String *s)
 {
-  if ( !rfid.PICC_IsNewCardPresent())
-    return BADGE_ABSENT;
- 
-  if ( !rfid.PICC_ReadCardSerial())
-    return BADGE_ERROR;
- 
-  for (int i = 0; i < rfid.uid.size; i++)
-  {
-    nuidPICC[i] = rfid.uid.uidByte[i];
-    *s = *s + String(rfid.uid.uidByte[i], HEX);
-  }
-  return BADGE_OK;
+  if ( !rfid.PICC_IsNewCardPresent())
+    return BADGE_ABSENT;
+ 
+  if ( !rfid.PICC_ReadCardSerial())
+    return BADGE_ERROR;
+ 
+  for (int i = 0; i < rfid.uid.size; i++)
+  {
+    nuidPICC[i] = rfid.uid.uidByte[i];
+    *s = *s + String(rfid.uid.uidByte[i], HEX);
+  }
+  return BADGE_OK;
 }
 
 /*
-  @brief vérifie que le delay a été dépassé depuis le temps de référence
-  @param ref : le temps de référence
+  @brief vérifie que le delay a été dépassé depuis le temps de référence
+  @param ref : le temps de référence
   @param timeDelay : le temps de delais voulu
-  @return true si le temps est dépassé
+  @return true si le temps est dépassé
 */
 bool EndOfDelay(unsigned long ref, unsigned long timeDelay)
 {
-  if (millis() - ref > timeDelay)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  if (millis() - ref > timeDelay)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 /*!
@@ -159,9 +158,10 @@ bool EndOfDelay(unsigned long ref, unsigned long timeDelay)
 */
 void setup()
 {
-  Serial.begin(9600);
-  SPI.begin();
-  rfid.PCD_Init();
+  Serial.begin(9600);
+  SPI.begin();
+  rfid.PCD_Init();
+  Serial.println("INIT");
 }
 
 /*!
@@ -171,98 +171,100 @@ void setup()
 */
 void loop()
 {
-  // Lecture des entrées
-  String rfidBadge = "";
-  inputStatusReadRfid = ReadRfid(&rfidBadge);
-  inputRfid = rfidBadge;
-  Serial.print(inputRfid);
-  // Traitement
-  switch (internalState)
-  {
-    // Cas d'initialisation  
-    case INIT:
-      if(statusReadRfid == BADGE_OK)
-      {
-        if(rfidBadge == MainID)
-        {
-          internalState = SCAN_IN_PROGRESS;
-          Serial.println("SCAN_IN_PROGRESS");
-        }
-        else
-        {
-          internalState = BADGE_ERROR_INIT;
-          Serial.println("BADGE_ERROR_INIT");
-          InternalRefTime = millis();
-        }
-      }
-      else
-      {
-        // pas de lecture de badge ou erreur
-      }
-      outputGreenLed = ON;  
-      outputOrangeLed = OFF;
-      outputRedLed = OFF;
-      break;
-    // Cas où un badge n'est pas valide lors de la phase d'initialisation
-    case BADGE_ERROR_INIT:
-      outputGreenLed = ON;  
-      outputOrangeLed = OFF;
-      outputRedLed = BLINK;
-      if(EndOfDelay(InternalRefTime, TIMEOUT_INIT) == true)
-      {
-        internalState = INIT;
-        Serial.println("INIT");
-      }
-      else
-      {
-        // le timeout n'est pas atteint
-      }
-      break;
-    // Cas où le scan est en cours
-    case SCAN_IN_PROGRESS:
-      if(statusReadRfid == BADGE_OK)
-      {
-        if(rfidBadge == MainID)
-        {
-          internalState = INIT;
-          Serial.println("INIT");
-        }
-        else
-        {
-          internalState = BADGE_ERROR_SCAN;
-          Serial.println("BADGE_ERROR_SCAN");
-          InternalRefTime = millis();
-        }
-      }
-      if(btn.released())
-      {
-        internalState = SYSTEM_COMPROMISED;
-        Serial.println("SYSTEM_COMPROMISED");
-      }
-      outputGreenLed = ON;
-      outputOrangeLed = BLINK;
-      outputRedLed = OFF;
-      break;
-    // Cas où un badge non valide est passé durant le scan
-    case BADGE_ERROR_SCAN:
-      outputGreenLed = ON;  
-      outputOrangeLed = BLINK;
-      outputRedLed = BLINK;
-      if(EndOfDelay(InternalRefTime, TIMEOUT_SCAN) == true)
-      {
-        internalState = SCAN_IN_PROGRESS;
-        Serial.println("SCAN_IN_PROGRESS");
-      }
-      else
-      {
-        // le timeout n'est pas atteint
-      }
-      break;
-    // Cas ou le système est compromis
-    case SYSTEM_COMPROMISED:
-      if(statusReadRfid == BADGE_OK)
+  // Lecture des entrées
+  rfidBadge = "";
+  inputStatusReadRfid = ReadRfid(&rfidBadge);
+  // Traitement
+  switch (internalState)
+  {
+    // Cas d'initialisation  
+    case INIT:
+      if(inputStatusReadRfid == BADGE_OK)
       {
-        if(rfidBadge == MainID)
+        if(rfidBadge == RFID_ADMIN)
+        {
+          internalState = SCAN_IN_PROGRESS;
+          Serial.println("SCAN_IN_PROGRESS");
+        }
+        else
+        {
+          internalState = BADGE_ERROR_INIT;
+          Serial.println("BADGE_ERROR_INIT");
+          InternalRefTime = millis();
+        }
+      }
+      else
+      {
+        // pas de lecture de badge ou erreur
+      }
+      outputGreenLed = ON;  
+      outputOrangeLed = OFF;
+      outputRedLed = OFF;
+      break;
+    // Cas où un badge n'est pas valide lors de la phase d'initialisation
+    case BADGE_ERROR_INIT:
+      outputGreenLed = ON;  
+      outputOrangeLed = OFF;
+      outputRedLed = BLINK;
+      if(EndOfDelay(InternalRefTime, TIMEOUT_INIT) == true)
+      {
+        internalState = INIT;
+        Serial.println("INIT");
+      }
+      else
+      {
+        // le timeout n'est pas atteint
+      }
+      break;
+    // Cas où le scan est en cours
+    case SCAN_IN_PROGRESS:
+      if(inputStatusReadRfid == BADGE_OK)
+      {
+        if(rfidBadge == RFID_ADMIN)
+        {
+          internalState = INIT;
+          Serial.println("INIT");
+        }
+        else
+        {
+          internalState = BADGE_ERROR_SCAN;
+          Serial.println("BADGE_ERROR_SCAN");
+          InternalRefTime = millis();
+        }
+      }
+      else
+      {
+        // pas de lecture de badge ou erreur
+      }
+      if(btn.released())
+      {
+        internalState = SYSTEM_COMPROMISED;
+        Serial.println("SYSTEM_COMPROMISED");
+      }
+      outputGreenLed = ON;
+      outputOrangeLed = BLINK;
+      outputRedLed = OFF;
+      break;
+    // Cas où un badge non valide est passé durant le scan
+    case BADGE_ERROR_SCAN:
+      outputGreenLed = ON;  
+      outputOrangeLed = BLINK;
+      outputRedLed = BLINK;
+      if(EndOfDelay(InternalRefTime, TIMEOUT_SCAN) == true)
+      {
+        internalState = SCAN_IN_PROGRESS;
+        Serial.println("SCAN_IN_PROGRESS");
+      }
+      else
+      {
+        // le timeout n'est pas atteint
+      }
+      break;
+    // Cas ou le système est compromis
+    case SYSTEM_COMPROMISED:
+      if(inputStatusReadRfid == BADGE_OK)
+      {
+        if(rfidBadge == RFID_ADMIN)
         {
           internalState = INIT;
           Serial.println("INIT");
@@ -272,13 +274,13 @@ void loop()
           // La compromission reste inchangé
         }
       }
-      outputGreenLed = OFF;  
-      outputOrangeLed = OFF;
-      outputRedLed = ON;
-      break;
-  }
-  // Ecriture des sorties
-  WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
-  // Période de la boucle principale et de la clignottement
-  delay(LOOP_DELAY);
+      outputGreenLed = OFF;  
+      outputOrangeLed = OFF;
+      outputRedLed = ON;
+      break;
+  }
+  // Ecriture des sorties
+  WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
+  // Période de la boucle principale et de la clignottement
+  delay(LOOP_DELAY);
 }
