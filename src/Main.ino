@@ -35,7 +35,8 @@ TLed outputRedLed = OFF;
 TKLed GreenLed(O3);
 TKLed OrangeLed(O5);
 TKLed RedLed(O4);
-TKButton btn(I1);
+TKButton btn1(I1);
+TKButton btn2(I0);
 unsigned long InternalRefTime;
 int inputStatusReadRfid;
 String rfidBadge;
@@ -236,7 +237,7 @@ void loop()
       {
         // pas de lecture de badge ou erreur
       }
-      if(btn.released())
+      if(btn1.released() || btn2.released())
       {
         internalState = SYSTEM_COMPROMISED;
         Serial.println("SYSTEM_COMPROMISED");
