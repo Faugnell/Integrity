@@ -182,17 +182,9 @@ void loop()
     case INIT:
       if(inputStatusReadRfid == BADGE_OK)
       {
-        if(rfidBadge == RFID_ADMIN)
-        {
-          internalState = SCAN_IN_PROGRESS;
-          Serial.println("SCAN_IN_PROGRESS");
-        }
-        else
-        {
-          internalState = BADGE_ERROR_INIT;
-          Serial.println("BADGE_ERROR_INIT");
-          InternalRefTime = millis();
-        }
+        rfidBadgeUser = rfidBadge;
+        internalState = SCAN_IN_PROGRESS;
+        Serial.println("SCAN_IN_PROGRESS");
       }
       else
       {
@@ -202,27 +194,13 @@ void loop()
       outputOrangeLed = OFF;
       outputRedLed = OFF;
       break;
-    // Cas où un badge n'est pas valide lors de la phase d'initialisation
-    case BADGE_ERROR_INIT:
-      outputGreenLed = ON;  
-      outputOrangeLed = OFF;
-      outputRedLed = BLINK;
-      if(EndOfDelay(InternalRefTime, TIMEOUT_INIT) == true)
-      {
-        internalState = INIT;
-        Serial.println("INIT");
-      }
-      else
-      {
-        // le timeout n'est pas atteint
-      }
-      break;
     // Cas où le scan est en cours
     case SCAN_IN_PROGRESS:
       if(inputStatusReadRfid == BADGE_OK)
       {
-        if(rfidBadge == RFID_ADMIN)
+        if(rfidBadge == rfidBadgeUser || rfidBadge == RFID_ADMIN)
         {
+          rfidBadgeUser = "";
           internalState = INIT;
           Serial.println("INIT");
         }
