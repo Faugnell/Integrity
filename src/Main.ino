@@ -10,7 +10,7 @@
 #include <TinkerKit.h>
 
 // Déclaration des constantes
-#define LOOP_DELAY 100
+#define LOOP_DELAY 200
 #define RFID_SIZE 20
 #define SS_PIN 10
 #define RST_PIN 9
@@ -19,7 +19,7 @@
 #define BADGE_OK 0
 #define TIMEOUT_INIT 3000
 #define TIMEOUT_SCAN 3000
-String RFID_ADMIN = "INSERT ID ADMIN BADGE";
+String RFID_ADMIN = "ID BADGE ADMIN"; // mettre le tag du badge administrateur
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 byte nuidPICC[255];
@@ -40,6 +40,7 @@ TKButton inputBtn2(I0);
 unsigned long InternalRefTime;
 int inputStatusReadRfid;
 String rfidBadge;
+String rfidBadgeUser;
 
 /*!
 * @brief écriture des leds
@@ -182,9 +183,16 @@ void loop()
     case INIT:
       if(inputStatusReadRfid == BADGE_OK)
       {
-        rfidBadgeUser = rfidBadge;
-        internalState = SCAN_IN_PROGRESS;
-        Serial.println("SCAN_IN_PROGRESS");
+        if(inputBtn1.held() && inputBtn2.held())
+        {
+          rfidBadgeUser = rfidBadge;
+          internalState = SCAN_IN_PROGRESS;
+          Serial.println("SCAN_IN_PROGRESS");
+        }
+        else
+        {
+          // pas de changement d'état
+        }
       }
       else
       {
