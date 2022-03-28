@@ -1,0 +1,34 @@
+Remarques générales:
+- Il faut vérifier l'orthographe et la grammaire avant de mettre les documents sous github
+- D'une manière générale, la documentation produite manque de précisions
+- Pas de "Je" dans les documents, utilisation de la 3ème personne
+
+procedure test.xlsx:
+- Nommer les onglets
+- Onglet de présentation du document
+
+fiche-version-matériel.docx :
+- "on fera tous les branchements par la suite sur la platine"
+- "je rappelle qu’il faut les faire sur les ports équivalent de la platine Shield V2 "
+- comment s'assurer que le matériel est correctement monté
+
+procedure-génération.docx:
+- "comment reproduire" : voir le modèle classique d'un document objet / référence / abréviations...
+- "la fiche version matériel" : il faut que les documents cités soient en référence dans ce document
+- "trouvable sur github" : il faut indiquer précisément le lien
+- "la dernière version logiciel...IDE Arduino 1.8.19" 
+- "installé les bibliothèques requises dans le dossier où se trouvera tout vos documents " pas assez précis
+- comment s'assurer que la procédure de génération a été correctement réalisée
+
+relecture.txt:
+- voir la stratégie et le nommage du fichier de relecture (décision relecture.txt : il englobera tous les fichiers)
+
+main.ino:
+- renommer rfidBadge; 
+- renommer  rfidBadgeUser;
+- les variables locales commencent par une minuscule (ajouter dans le fichier règles de codage)
+- les variables globales commencent par une majuscule (ajouter dans le fichier règles de codage)
+- mettre des espaces entre les blocs de traitement
+- commentaire "la clignottement"
+
+fiche-version-logiciel.docx à écrire
