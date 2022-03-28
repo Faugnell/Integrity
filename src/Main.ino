@@ -39,8 +39,8 @@ TKButton inputBtn1(I1);
 TKButton inputBtn2(I0);
 unsigned long InternalRefTime;
 int inputStatusReadRfid;
-String rfidBadge;
-String rfidBadgeUser;
+String internalRfidBadge;
+String internalRfidBadgeUser;
 
 /*!
 * @brief écriture des leds
@@ -174,18 +174,21 @@ void setup()
 void loop()
 {
   // Lecture des entrées
-  rfidBadge = "";
-  inputStatusReadRfid = ReadRfid(&rfidBadge);
+  internalRfidBadge = "";
+  inputStatusReadRfid = ReadRfid(&internalRfidBadge);
   // Traitement
   switch (internalState)
   {
     // Cas d'initialisation  
     case INIT:
+      outputGreenLed = ON;  
+      outputOrangeLed = OFF;
+      outputRedLed = OFF;
       if(inputStatusReadRfid == BADGE_OK)
       {
         if(inputBtn1.held() && inputBtn2.held())
         {
-          rfidBadgeUser = rfidBadge;
+          internalRfidBadgeUser = internalRfidBadge;
           internalState = SCAN_IN_PROGRESS;
           Serial.println("SCAN_IN_PROGRESS");
         }
@@ -197,18 +200,18 @@ void loop()
       else
       {
         // pas de lecture de badge ou erreur
-      }
-      outputGreenLed = ON;  
-      outputOrangeLed = OFF;
-      outputRedLed = OFF;
+      }      
       break;
     // Cas où le scan est en cours
     case SCAN_IN_PROGRESS:
+      outputGreenLed = ON;
+      outputOrangeLed = BLINK;
+      outputRedLed = OFF;
       if(inputStatusReadRfid == BADGE_OK)
       {
-        if(rfidBadge == rfidBadgeUser || rfidBadge == RFID_ADMIN)
+        if(internalRfidBadge == internalRfidBadgeUser || internalRfidBadge == RFID_ADMIN)
         {
-          rfidBadgeUser = "";
+          internalRfidBadgeUser = "";
           internalState = INIT;
           Serial.println("INIT");
         }
@@ -228,9 +231,6 @@ void loop()
         internalState = SYSTEM_COMPROMISED;
         Serial.println("SYSTEM_COMPROMISED");
       }
-      outputGreenLed = ON;
-      outputOrangeLed = BLINK;
-      outputRedLed = OFF;
       break;
     // Cas où un badge non valide est passé durant le scan
     case BADGE_ERROR_SCAN:
@@ -249,9 +249,12 @@ void loop()
       break;
     // Cas ou le système est compromis
     case SYSTEM_COMPROMISED:
+      outputGreenLed = OFF;  
+      outputOrangeLed = OFF;
+      outputRedLed = ON;
       if(inputStatusReadRfid == BADGE_OK)
       {
-        if(rfidBadge == RFID_ADMIN)
+        if(internalRfidBadge == RFID_ADMIN)
         {
           internalState = INIT;
           Serial.println("INIT");
@@ -260,14 +263,12 @@ void loop()
         {
           // La compromission reste inchangé
         }
-      }
-      outputGreenLed = OFF;  
-      outputOrangeLed = OFF;
-      outputRedLed = ON;
+      }      
       break;
   }
+  
   // Ecriture des sorties
   WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
-  // Période de la boucle principale et de la clignottement
+  // Période de la boucle principale et du clignottement
   delay(LOOP_DELAY);
 }
