@@ -39,8 +39,8 @@ TKButton inputBtn1(I1);
 TKButton inputBtn2(I0);
 unsigned long InternalRefTime;
 int inputStatusReadRfid;
-String internalRfidBadge;
-String internalRfidBadgeUser;
+String inputRfidBadge;
+String inputRfidBadgeUser;
 
 /*!
 * @brief écriture des leds
@@ -174,8 +174,8 @@ void setup()
 void loop()
 {
   // Lecture des entrées
-  internalRfidBadge = "";
-  inputStatusReadRfid = ReadRfid(&internalRfidBadge);
+  inputRfidBadge = "";
+  inputStatusReadRfid = ReadRfid(&inputRfidBadge);
   // Traitement
   switch (internalState)
   {
@@ -188,7 +188,7 @@ void loop()
       {
         if(inputBtn1.held() && inputBtn2.held())
         {
-          internalRfidBadgeUser = internalRfidBadge;
+          inputRfidBadgeUser = inputRfidBadge;
           internalState = SCAN_IN_PROGRESS;
           Serial.println("SCAN_IN_PROGRESS");
         }
@@ -209,9 +209,9 @@ void loop()
       outputRedLed = OFF;
       if(inputStatusReadRfid == BADGE_OK)
       {
-        if(internalRfidBadge == internalRfidBadgeUser || internalRfidBadge == RFID_ADMIN)
+        if(inputRfidBadge == inputRfidBadgeUser || inputRfidBadge == RFID_ADMIN)
         {
-          internalRfidBadgeUser = "";
+          inputRfidBadgeUser = "";
           internalState = INIT;
           Serial.println("INIT");
         }
@@ -254,7 +254,7 @@ void loop()
       outputRedLed = ON;
       if(inputStatusReadRfid == BADGE_OK)
       {
-        if(internalRfidBadge == RFID_ADMIN)
+        if(inputRfidBadge == RFID_ADMIN)
         {
           internalState = INIT;
           Serial.println("INIT");
