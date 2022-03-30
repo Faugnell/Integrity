@@ -1,0 +1,18 @@
+Cas nominal:
+- La led verte est allumée lorsque le système est sous tension
+- L'utilisateur branche le matériel à contrôler
+- L'utilisateur referme la boite (les 2 boutons sont enfoncés)
+- L'utilisateur lance le contrôle depuis l'écran tactile
+- L'utilisateur scanne son badge, la led orange devient clignottante
+- La fin du contrôle est indiquée par l'écran
+- L'utilisateur enregistre le rapport du contrôle depuis l'écran tactile
+- L'utilisateur scanne son badge, la led orange cesse de clignotter
+- L'utilisateur ouvre la boite et débranche le matériel
+
+Extension1: 
+- Action: un autre utilisateur badge pendant le scan
+- Résultat: la led rouge clignotte pendant 3 secondes
+
+Extension2:
+- Action: la boite est ouverte alors que un contrôle est en cours
+- Résultat: toutes les leds sont éteintes exceptée la led rouge. Seul le scan d'un badge administrateur réinitialise le système
