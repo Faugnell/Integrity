@@ -10,14 +10,14 @@
 #include <TinkerKit.h>
 
 // Déclaration des constantes
-#define LOOP_DELAY 200
+#define LOOP_DELAY 100
 #define RFID_SIZE 20
 #define SS_PIN 10
 #define RST_PIN 9
 #define BADGE_ABSENT 1
 #define BADGE_ERROR 2
 #define BADGE_OK 0
-#define TIMEOUT_INIT 3000
+#define TIMEOUT_INIT 10000
 #define TIMEOUT_SCAN 3000
 String RFID_ADMIN = "ID BADGE ADMIN"; // mettre le tag du badge administrateur
 
@@ -42,6 +42,23 @@ int inputStatusReadRfid;
 String inputRfidBadge;
 String inputRfidBadgeUser;
 
+/*
+  @brief vérifie que le delay a été dépassé depuis le temps de référence
+  @param ref : le temps de référence
+  @param timeDelay : le temps de delais voulu
+  @return true si le temps est dépassé
+*/
+bool EndOfDelay(unsigned long ref, unsigned long timeDelay)
+{
+  if (millis() - ref > timeDelay)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 /*!
 * @brief écriture des leds
 * @param TLed outputGreenLed : état de sortie de la led verte
@@ -60,8 +77,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       GreenLed.off();
       break;
     case BLINK:
-      if (GreenLed.state() == HIGH)
-      {
+      if((int)((millis()/500)&1) == true)
+      {   
         GreenLed.off();
       }
       else
@@ -80,14 +97,14 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       OrangeLed.off();
       break;
     case BLINK:
-      if (OrangeLed.state() == HIGH)
-      {
-        OrangeLed.off();
-      }
-      else
-      {
-        OrangeLed.on();
-      }
+       if((int)((millis()/500)&1) == true)
+       {   
+         OrangeLed.off();
+       }
+       else
+       {
+         OrangeLed.on();
+       }
       break;
   }
  
@@ -100,8 +117,8 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
       RedLed.off();
       break;
     case BLINK:
-      if (RedLed.state() == HIGH)
-      {
+      if((int)((millis()/500)&1) == true)
+      {   
         RedLed.off();
       }
       else
@@ -122,8 +139,10 @@ void WriteLeds(TLed outputGreenLed, TLed outputOrangeLed, TLed outputRedLed)
 int ReadRfid(String *s)
 {
   if ( !rfid.PICC_IsNewCardPresent())
+  {
     return BADGE_ABSENT;
- 
+  }
+  
   if ( !rfid.PICC_ReadCardSerial())
     return BADGE_ERROR;
  
@@ -132,25 +151,13 @@ int ReadRfid(String *s)
     nuidPICC[i] = rfid.uid.uidByte[i];
     *s = *s + String(rfid.uid.uidByte[i], HEX);
   }
+  
+  // Halt PICC
+  rfid.PICC_HaltA();
+  
+  // Stop encryption on PCD
+  rfid.PCD_StopCrypto1();
   return BADGE_OK;
-}
-
-/*
-  @brief vérifie que le delay a été dépassé depuis le temps de référence
-  @param ref : le temps de référence
-  @param timeDelay : le temps de delais voulu
-  @return true si le temps est dépassé
-*/
-bool EndOfDelay(unsigned long ref, unsigned long timeDelay)
-{
-  if (millis() - ref > timeDelay)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
 }
 
 /*!
@@ -185,14 +192,15 @@ void loop()
       outputOrangeLed = OFF;
       outputRedLed = OFF;
       if(inputStatusReadRfid == BADGE_OK)
-      {
-        if(inputBtn1.held() && inputBtn2.held())
+      {        
+        //if(inputBtn1.held() && inputBtn2.held())
         {
           inputRfidBadgeUser = inputRfidBadge;
+          InternalRefTime = millis();
           internalState = SCAN_IN_PROGRESS;
           Serial.println("SCAN_IN_PROGRESS");
         }
-        else
+        //else
         {
           // pas de changement d'état
         }
@@ -204,12 +212,13 @@ void loop()
       break;
     // Cas où le scan est en cours
     case SCAN_IN_PROGRESS:
+      
       outputGreenLed = ON;
       outputOrangeLed = BLINK;
       outputRedLed = OFF;
       if(inputStatusReadRfid == BADGE_OK)
       {
-        if(inputRfidBadge == inputRfidBadgeUser || inputRfidBadge == RFID_ADMIN)
+        if((inputRfidBadge == inputRfidBadgeUser || inputRfidBadge == RFID_ADMIN) && (EndOfDelay(InternalRefTime, TIMEOUT_INIT) == true))
         {
           inputRfidBadgeUser = "";
           internalState = INIT;
@@ -269,6 +278,6 @@ void loop()
   
   // Ecriture des sorties
   WriteLeds(outputGreenLed, outputOrangeLed, outputRedLed);
-  // Période de la boucle principale et du clignottement
+
   delay(LOOP_DELAY);
 }
