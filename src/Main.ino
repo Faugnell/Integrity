@@ -193,14 +193,14 @@ void loop()
       outputRedLed = OFF;
       if(inputStatusReadRfid == BADGE_OK)
       {        
-        //if(inputBtn1.held() && inputBtn2.held())
+        if(inputBtn1.held() && inputBtn2.held())
         {
           inputRfidBadgeUser = inputRfidBadge;
           InternalRefTime = millis();
           internalState = SCAN_IN_PROGRESS;
           Serial.println("SCAN_IN_PROGRESS");
         }
-        //else
+        else
         {
           // pas de changement d'état
         }
@@ -246,7 +246,7 @@ void loop()
       outputGreenLed = ON;  
       outputOrangeLed = BLINK;
       outputRedLed = BLINK;
-      if(EndOfDelay(InternalRefTime, TIMEOUT_SCAN) == true)
+      if(EndOfDelay(InternalRefTime, TIMEOUT_SCAN))
       {
         internalState = SCAN_IN_PROGRESS;
         Serial.println("SCAN_IN_PROGRESS");
