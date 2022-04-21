@@ -1,0 +1,8 @@
+résumé présentation 21/04/2022 :
+
+ - pas d'enregistrement des tags (RGPD)
+ - carte admin en dur dans le code
+ - Rajout de MAJ dans procédure de génération
+ - présentation commercial / story board
+ - Voir combien de sas
+ - boitier fini et démo avec utilisateur
